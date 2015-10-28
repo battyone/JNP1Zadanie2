@@ -6,8 +6,8 @@
 
 using namespace std;
 
-typedef std::unordered_map<string, string> langOfChangesType;
-typedef std::unordered_map<unsigned long, langOfChangesType> mapOfLangsType;
+typedef unordered_map<string, string> langOfChangesType;
+typedef unordered_map<unsigned long, langOfChangesType> mapOfLangsType;
 
 static unsigned long currentlyAddedLang = 0;
 static mapOfLangsType mapOfLangs;
@@ -17,8 +17,8 @@ unsigned long maptel_create() {
     return currentlyAddedLang++;
 }
 
-void maptel_erase(unsigned long id, char const *tel_src) {
-    auto tempLangIterator = mapOfLangs.find(id);
+void maptel_erase(unsigned long dictId, char const *tel_src) {
+    auto tempLangIterator = mapOfLangs.find(dictId);
     if (tempLangIterator != mapOfLangs.end()) {
         auto tempPhoneNrIterator = tempLangIterator->second.find(string(tel_src));
         if (tempPhoneNrIterator != tempLangIterator->second.end())
@@ -26,19 +26,19 @@ void maptel_erase(unsigned long id, char const *tel_src) {
     }
 }
 
-void maptel_transform(unsigned long id, char const *tel_src, char *tel_dst, size_t len) {
-    auto tempLangIterator = mapOfLangs.find(id);
+void maptel_transform(unsigned long dictId, char const *tel_src, char *tel_dst, size_t len) {
+    auto tempLangIterator = mapOfLangs.find(dictId);
     if (tempLangIterator != mapOfLangs.end()) {  //langOfChanges found
-        unordered_set<string> path;
+        unordered_set<string> pathOfTransformedNr;
         string telSrcCPPString = string(tel_src);
-        path.insert(telSrcCPPString);
+        pathOfTransformedNr.insert(telSrcCPPString);
         auto tempPhoneNrIterator = tempLangIterator->second.find(telSrcCPPString);
         if (tempPhoneNrIterator != tempLangIterator->second.end()){ //number found
             while (true){
                 string currentChangeCPPString = tempPhoneNrIterator->second;
                 
-                auto pathIterator = path.find(currentChangeCPPString);
-                if (pathIterator != path.end()){ //cycle found
+                auto pathOfTransformedNrIterator = pathOfTransformedNr.find(currentChangeCPPString);
+                if (pathOfTransformedNrIterator != pathOfTransformedNr.end()){ //cycle found
                     strncpy(tel_dst, tel_src, len);
                     break;
                 }
@@ -49,7 +49,7 @@ void maptel_transform(unsigned long id, char const *tel_src, char *tel_dst, size
                     break;
                 }
                 
-                path.insert(currentChangeCPPString);
+                pathOfTransformedNr.insert(currentChangeCPPString);
                 tempPhoneNrIterator = newPhoneNrIterator;
             }
         } else { //number not found
@@ -58,14 +58,14 @@ void maptel_transform(unsigned long id, char const *tel_src, char *tel_dst, size
     }
 }
 
-void maptel_insert(unsigned long id, char const *tel_src, char const *tel_dst) {
-    auto tempLangIterator = mapOfLangs.find(id);
+void maptel_insert(unsigned long dictId, char const *tel_src, char const *tel_dst) {
+    auto tempLangIterator = mapOfLangs.find(dictId);
     if (tempLangIterator != mapOfLangs.end())
         tempLangIterator->second[string(tel_src)] = string(tel_dst);
 }
 
-void maptel_delete(unsigned long id){
-    auto tempLangIterator = mapOfLangs.find(id);
+void maptel_delete(unsigned long dictId){
+    auto tempLangIterator = mapOfLangs.find(dictId);
     if (tempLangIterator != mapOfLangs.end())
         mapOfLangs.erase(tempLangIterator);
 }
@@ -81,10 +81,10 @@ void maptel_delete(unsigned long id){
 //
 //static void print_create_result(unsigned long new_map_id){
 //    print_module_name();
-//    cerr<<"maptel_create: new map id = "<<id<<endl;
+//    cerr<<"maptel_create: new map dictId = "<<id<<endl;
 //}
 //
-//static void print_erase_call(unsigned long id, char const *tel_src){
+//static void print_erase_call(unsigned long dictId, char const *tel_src){
 //    print_module_name();
 //    cerr<<"maptel_erase("<<id<<", "<<string(tel_src)<<")"<<endl;
 //}
